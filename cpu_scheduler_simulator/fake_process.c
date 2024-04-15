@@ -3,7 +3,7 @@
 #include "fake_process.h"
 
 #define LINE_LENGTH 1024
-
+// leggo da file i vari eventi del processo, man mano che leggo creo i processevent e li metto nella lista eventi del fakeprocess p
 int FakeProcess_load(FakeProcess* p, const char* filename) {
   FILE* f=fopen(filename, "r");
   if (! f)
@@ -58,7 +58,7 @@ int FakeProcess_load(FakeProcess* p, const char* filename) {
   if (buffer)
     free(buffer);
   fclose(f);
-  return num_events;
+  return num_events;   //returna i numero totali di eventi
 }
 
 

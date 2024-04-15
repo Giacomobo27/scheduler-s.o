@@ -13,9 +13,9 @@ void FakeOS_init(FakeOS* os) {
   os->schedule_fn=0;
 }
 
-void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
+void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al tempo corrente e lo mette nella coda giusta
   // sanity check
-  assert(p->arrival_time==os->timer && "time mismatch in creation");
+  assert(p->arrival_time==os->timer && "time mismatch in creation");  //tempi sono corretti
   // we check that in the list of PCBs there is no
   // pcb having the same pid
   assert( (!os->running || os->running->pid!=p->pid) && "pid taken");
@@ -23,7 +23,7 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
   ListItem* aux=os->ready.first;
   while(aux){
     FakePCB* pcb=(FakePCB*)aux;
-    assert(pcb->pid!=p->pid && "pid taken");
+    assert(pcb->pid!=p->pid && "pid taken");  //controllo che i pid siano univoci
     aux=aux->next;
   }
 
@@ -34,7 +34,7 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
     aux=aux->next;
   }
 
-  // all fine, no such pcb exists
+  // all fine, no such pcb exists , procedo con creazione pcb per nuovo processo
   FakePCB* new_pcb=(FakePCB*) malloc(sizeof(FakePCB));
   new_pcb->list.next=new_pcb->list.prev=0;
   new_pcb->pid=p->pid;
@@ -61,7 +61,7 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) {
 
 
 
-void FakeOS_simStep(FakeOS* os){
+void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   
   printf("************** TIME: %08d **************\n", os->timer);
 
@@ -71,21 +71,21 @@ void FakeOS_simStep(FakeOS* os){
   while (aux){
     FakeProcess* proc=(FakeProcess*)aux;
     FakeProcess* new_process=0;
-    if (proc->arrival_time==os->timer){
+    if (proc->arrival_time==os->timer){  //scannerizza tutti i processi, se il timer di uno di questo è immminente, crea quel processo per farlo runnare
       new_process=proc;
     }
     aux=aux->next;
     if (new_process) {
       printf("\tcreate pid:%d\n", new_process->pid);
-      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process);
-      FakeOS_createProcess(os, new_process);
-      free(new_process);
+      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista dei processi attivi
+      FakeOS_createProcess(os, new_process); //creo il processo( lo trasfprmp in pcb e lo metto in una delle code del sistema)
+      free(new_process); //libero spazio 
     }
   }
 
-  // scan waiting list, and put in ready all items whose event terminates
-  aux=os->waiting.first;
-  while(aux) {
+  // scan waiting list, and put in ready all items whose event terminates, per vedere se i/o sono terminati
+  aux=os->waiting.first;  // ogni volta che ciclo su un evento, gli decremento di 1 la sua durata del suo evento, è come se ho implementato un timer cosi
+  while(aux) { //finche ce elemento in waiting list
     FakePCB* pcb=(FakePCB*)aux;
     aux=aux->next;
     ProcessEvent* e=(ProcessEvent*) pcb->events.first;

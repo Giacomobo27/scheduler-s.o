@@ -38,7 +38,7 @@ int FakeProcess_load(FakeProcess* p, const char* filename) {
       e->duration=duration;
       List_pushBack(&p->events, (ListItem*)e);
       ++num_events;
-      goto next_round;
+      goto next_round; // sti goto sono tipo try else
     }
     num_tokens=sscanf(buffer, "IO_BURST %d", &duration);
     if (num_tokens==1){

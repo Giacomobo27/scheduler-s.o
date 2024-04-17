@@ -5,7 +5,7 @@ typedef struct ListItem {
   struct ListItem* next;
 } ListItem;
 
-typedef struct ListHead {
+typedef struct ListHead { //lista di tante head in cui ce il dato int size, e sono collegate tramite ListItem
   ListItem* first;
   ListItem* last;
   int size;

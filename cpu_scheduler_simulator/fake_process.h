@@ -8,7 +8,7 @@ typedef struct {
   ListItem list;   //processevent è un elemento di una lista
   ResourceType type; // evento processo è cpu o io
   int duration;
-} ProcessEvent;   // carico i processevent dentro lista dentro fakeprocess
+} ProcessEvent;   // carico i processevent dentro lista dentro fakeprocess, è listHead
 
 // fake process
 typedef struct {

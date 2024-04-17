@@ -9,7 +9,7 @@ typedef struct {
   int quantum;
 } SchedRRArgs;  //quantum
 
-void schedRR(FakeOS* os, void* args_){  //scheduler
+void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
   // look for the first process in ready
@@ -17,26 +17,28 @@ void schedRR(FakeOS* os, void* args_){  //scheduler
   if (! os->ready.first)
     return;
 
+//devo riordinare &os->ready per renderlo SJF
+//...
 
-
-  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready);
+  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
   os->running=pcb;
   
   assert(pcb->events.first);
-  ProcessEvent* e = (ProcessEvent*)pcb->events.first;
+  ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running
   assert(e->type==CPU);
 
-  // look at the first event
+  // look at the first event                           
   // if duration>quantum
   // push front in the list of event a CPU event of duration quantum
   // alter the duration of the old event subtracting quantum
-  if (e->duration>args->quantum) {
+  if (e->duration>args->quantum) {     
     ProcessEvent* qe=(ProcessEvent*)malloc(sizeof(ProcessEvent));
     qe->list.prev=qe->list.next=0;
     qe->type=CPU;
     qe->duration=args->quantum;
-    e->duration-=args->quantum;
-    List_pushFront(&pcb->events, (ListItem*)qe);
+    e->duration-=args->quantum;  
+    List_pushFront(&pcb->events, (ListItem*)qe); 
+    // evento attuale diventa 2 eventi, uno di durata quantum all inizio, e uno di durata rimanente appena dopo(in secondo posto)
   }
 };
 

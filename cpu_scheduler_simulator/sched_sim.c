@@ -4,12 +4,12 @@
 #include "fake_os.h"
 
 FakeOS os;
-
+//giacomo jin 1937721
 typedef struct {
   int quantum;
-} SchedRRArgs; //scheduler
+} SchedRRArgs;  //quantum
 
-void schedRR(FakeOS* os, void* args_){
+void schedRR(FakeOS* os, void* args_){  //scheduler
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
   // look for the first process in ready
@@ -40,12 +40,14 @@ void schedRR(FakeOS* os, void* args_){
   }
 };
 
+
+//main vero e proprio
 int main(int argc, char** argv) {
   FakeOS_init(&os);
   SchedRRArgs srr_args;  //scheduler
-  srr_args.quantum=5;
+  srr_args.quantum=5;  //da settare
   os.schedule_args=&srr_args;
-  os.schedule_fn=schedRR;
+  os.schedule_fn=schedRR;  //setta scheduler RR fcfs
   
   for (int i=1; i<argc; ++i){   //carico tutti i processi
     FakeProcess new_process;

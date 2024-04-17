@@ -1,6 +1,6 @@
 #include "linked_list.h"
 #include <assert.h>
-
+//giacomo jin 1937721
 void List_init(ListHead* head) {
   head->first=0;
   head->last=0;

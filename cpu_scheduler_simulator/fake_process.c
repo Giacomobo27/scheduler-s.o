@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "fake_process.h"
-
+//giacomo jin 1937721
 #define LINE_LENGTH 1024
 // leggo da file i vari eventi del processo, man mano che leggo creo i processevent e li metto nella lista eventi del fakeprocess p
 int FakeProcess_load(FakeProcess* p, const char* filename) {

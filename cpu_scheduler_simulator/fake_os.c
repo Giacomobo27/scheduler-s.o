@@ -3,14 +3,14 @@
 #include <assert.h>
 
 #include "fake_os.h"
-
+//giacomo jin 1937721
 void FakeOS_init(FakeOS* os) {
   os->running=0;
   List_init(&os->ready);
   List_init(&os->waiting);
   List_init(&os->processes);
   os->timer=0;
-  os->schedule_fn=0;
+  os->schedule_fn=0;  
 }
 
 void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al tempo corrente, crea pcb e lo mette nella coda giusta
@@ -160,12 +160,12 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     }
 
  // qua non rimpiazzo mai prememptivamente i processi 
-// adesso è tipo fifo
+// adesso è tipo fcfs
   }
 
 
   // call schedule, if defined
-  if (os->schedule_fn && ! os->running){
+  if (os->schedule_fn && ! os->running){ 
     (*os->schedule_fn)(os, os->schedule_args); //funzione scheduling, guarda tutte le strutture del fake os e decide il prossimo running
   }
 

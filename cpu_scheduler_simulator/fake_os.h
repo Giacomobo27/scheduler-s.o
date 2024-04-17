@@ -1,7 +1,7 @@
 #include "fake_process.h"
 #include "linked_list.h"
 #pragma once
-
+//giacomo jin 1937721
 
 typedef struct {
   ListItem list;   // fake pcb è un elemento di una lista

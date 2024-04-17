@@ -1,6 +1,6 @@
 #pragma once
 #include "linked_list.h"
-
+//giacomo jin 1937721
 typedef enum {CPU=0, IO=1} ResourceType;  //tipo risorsa
 
 // event of a process

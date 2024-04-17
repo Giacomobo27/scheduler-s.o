@@ -13,7 +13,7 @@ void FakeOS_init(FakeOS* os) {
   os->schedule_fn=0;
 }
 
-void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al tempo corrente e lo mette nella coda giusta
+void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al tempo corrente, crea pcb e lo mette nella coda giusta
   // sanity check
   assert(p->arrival_time==os->timer && "time mismatch in creation");  //tempi sono corretti
   // we check that in the list of PCBs there is no
@@ -47,10 +47,10 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al t
   ProcessEvent* e=(ProcessEvent*)new_pcb->events.first;
   switch(e->type){
   case CPU:
-    List_pushBack(&os->ready, (ListItem*) new_pcb);
+    List_pushBack(&os->ready, (ListItem*) new_pcb);     //se primo process event è cpu->metto pcb in ready
     break;
   case IO:
-    List_pushBack(&os->waiting, (ListItem*) new_pcb);
+    List_pushBack(&os->waiting, (ListItem*) new_pcb);  //se primo process event è io->metto pcb in waiting
     break;
   default:
     assert(0 && "illegal resource");
@@ -72,13 +72,13 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     FakeProcess* proc=(FakeProcess*)aux;
     FakeProcess* new_process=0;
     if (proc->arrival_time==os->timer){  //scannerizza tutti i processi, se il timer di uno di questo è immminente, crea quel processo per farlo runnare
-      new_process=proc;
+      new_process=proc;  // processo che sta per partire trovato
     }
     aux=aux->next;
     if (new_process) {
       printf("\tcreate pid:%d\n", new_process->pid);
-      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista dei processi attivi
-      FakeOS_createProcess(os, new_process); //creo il processo( lo trasfprmp in pcb e lo metto in una delle code del sistema)
+      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista di tutti i processsi dentro fake os
+      FakeOS_createProcess(os, new_process); //creo pcb ( è la funzione sopra)
       free(new_process); //libero spazio 
     }
   }
@@ -90,29 +90,30 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     aux=aux->next;
     ProcessEvent* e=(ProcessEvent*) pcb->events.first;
     printf("\twaiting pid: %d\n", pcb->pid);
-    assert(e->type==IO);
-    e->duration--;
+    assert(e->type==IO); //perche primo event di pcb in waiting deve sempre essere di tipo IO
+    e->duration--; //decremento durata IO
     printf("\t\tremaining time:%d\n",e->duration);
-    if (e->duration==0){
+    if (e->duration==0){  //evento IO terminato
       printf("\t\tend burst\n");
-      List_popFront(&pcb->events);
+      List_popFront(&pcb->events);  //elimino evento perche terminato
       free(e);
-      List_detach(&os->waiting, (ListItem*)pcb);
+      //prendo processo e studio evento successivo del processo
+      List_detach(&os->waiting, (ListItem*)pcb);  //stacco pcb da waiting
       if (! pcb->events.first) {
         // kill process
-        printf("\t\tend process\n");
+        printf("\t\tend process\n");  //se non ha piu eventi il processo, lo termini
         free(pcb);
       } else {
         //handle next event
-        e=(ProcessEvent*) pcb->events.first;
+        e=(ProcessEvent*) pcb->events.first; 
         switch (e->type){
         case CPU:
           printf("\t\tmove to ready\n");
-          List_pushBack(&os->ready, (ListItem*) pcb);
+          List_pushBack(&os->ready, (ListItem*) pcb); // se prossimoevento è CPU, sposto pcb in coda ready
           break;
         case IO:
           printf("\t\tmove to waiting\n");
-          List_pushBack(&os->waiting, (ListItem*) pcb);
+          List_pushBack(&os->waiting, (ListItem*) pcb); // se prossimo evento è IO, sposto pcb in waiting
           break;
         }
       }
@@ -120,7 +121,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   }
 
   
-
+//parte scheduling ossia gestione running
   // decrement the duration of running
   // if event over, destroy event
   // and reschedule process
@@ -130,15 +131,18 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   if (running) {
     ProcessEvent* e=(ProcessEvent*) running->events.first;
     assert(e->type==CPU);
-    e->duration--;
+    e->duration--;  // decremento tempo del processo event in running 
     printf("\t\tremaining time:%d\n",e->duration);
+
+
+
     if (e->duration==0){
       printf("\t\tend burst\n");
-      List_popFront(&running->events);
+      List_popFront(&running->events);  //elimina evento perche finito
       free(e);
       if (! running->events.first) {
         printf("\t\tend process\n");
-        free(running); // kill process
+        free(running); // elimina processo perche ha finito gli eventi
       } else {
         e=(ProcessEvent*) running->events.first;
         switch (e->type){
@@ -154,12 +158,15 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
       }
       os->running = 0;
     }
+
+ // qua non rimpiazzo mai prememptivamente i processi 
+
   }
 
 
   // call schedule, if defined
   if (os->schedule_fn && ! os->running){
-    (*os->schedule_fn)(os, os->schedule_args); 
+    (*os->schedule_fn)(os, os->schedule_args); //funzione scheduling, guarda tutte le strutture del fake os e decide il prossimo running
   }
 
   // if running not defined and ready queue not empty

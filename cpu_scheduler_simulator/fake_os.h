@@ -14,7 +14,7 @@ typedef void (*ScheduleFn)(struct FakeOS* os, void* args); //puntatore a funzion
 
 typedef struct FakeOS{
   FakePCB* running; // ho tanti pcb, uno a processo, questo punta al pcb del processo attuale che sta runnando
-  ListHead ready;   //code processi (Pcb)
+  ListHead ready;   //code pcb di cui primo evento è cpu
   ListHead waiting; // code pcb di cui primo evento è io
   int timer;
   ScheduleFn schedule_fn;  //puntatore a funzione di scheduling, dovro assegnare qui la mia funzione(politica) di scheduling

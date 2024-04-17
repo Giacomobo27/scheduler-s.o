@@ -7,7 +7,7 @@ FakeOS os;
 
 typedef struct {
   int quantum;
-} SchedRRArgs;
+} SchedRRArgs; //scheduler
 
 void schedRR(FakeOS* os, void* args_){
   SchedRRArgs* args=(SchedRRArgs*)args_;
@@ -16,6 +16,8 @@ void schedRR(FakeOS* os, void* args_){
   // if none, return
   if (! os->ready.first)
     return;
+
+
 
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready);
   os->running=pcb;
@@ -40,7 +42,7 @@ void schedRR(FakeOS* os, void* args_){
 
 int main(int argc, char** argv) {
   FakeOS_init(&os);
-  SchedRRArgs srr_args;
+  SchedRRArgs srr_args;  //scheduler
   srr_args.quantum=5;
   os.schedule_args=&srr_args;
   os.schedule_fn=schedRR;

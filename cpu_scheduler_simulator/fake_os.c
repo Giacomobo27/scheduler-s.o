@@ -160,7 +160,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     }
 
  // qua non rimpiazzo mai prememptivamente i processi 
-
+// adesso è tipo fifo
   }
 
 

@@ -38,16 +38,62 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     minimo=cpuburst;
     pcbminimo=pcbaux;  //salvato il minimo
    //detach
-    ListItem* pcbminimoItem=List_detach(&os->ready, aux); // stacco il pcb
-    List_pushFront(&os->ready, pcbminimoItem);//inserisco pcb all inizio
+    List_detach(&os->ready, aux); // stacco il pcb
+    List_pushFront(&os->ready, aux);//inserisco pcb all inizio
     //pushfront
     }
 
     aux=aux->next;
     len++;
  
-   //sta roba trova solo il minimo totale
+   //sta roba trova solo il minimo totale e lo mette all inizio della coda ready
   }
+  //faccio lista ausiliare di pcb in cui inserisco man mano tutti minimi che trovo
+  FakePCB* pcbog= (FakePCB*)os->ready.first; //giusto
+
+  FakePCB* pcbfantasma=(FakePCB*) malloc(sizeof(FakePCB)); //copia del primo pcb minimo
+  pcbfantasma->list=pcbog->list;
+  pcbfantasma->pid=pcbog->pid;
+  pcbfantasma->events=pcbog->events;
+  ListItem* pcbfantasmaitem=(ListItem*) pcbfantasma;
+  
+  ListHead ready2;  //lista fantasma 
+  List_init(&ready2);
+  List_pushFront(&ready2, pcbfantasmaitem);  //aggiunto primo minimo
+  for(int i=1;i<len;i++){
+     //lista di pcb ready che rendo sempre piu piccola
+      ListItem* primoprima=os->ready.first;
+      List_detach(&os->ready, primoprima); // stacco il primo
+
+      aux=os->ready.first; //studio il secondo pcb
+
+     //trovo minimo della rimanente
+     int minimo=9999999999;
+ while(aux){
+
+    FakePCB* pcbaux= (FakePCB*) aux;
+    ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
+    int cpuburst= eventoaux->duration;
+    if(cpuburst<minimo){
+    minimo=cpuburst;
+    pcbminimo=pcbaux;  //salvato il minimo sus
+   //detach
+    List_detach(&os->ready, aux); // stacco il pcb
+    List_pushFront(&os->ready, aux);//inserisco pcb all inizio
+    //pushfront
+    }
+
+ }
+ ListItem* primofine=os->ready.first;
+ List_pushFront(&ready2, pcbfantasmaitem); 
+
+  }
+
+
+
+
+
+
 
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running

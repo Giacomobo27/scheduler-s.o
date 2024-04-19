@@ -23,23 +23,16 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
   //devo riordinare &os->ready per renderlo SJF
 //... lo faccio piu banale possibile
 
-  ProcessEvent* evento= (ProcessEvent*)pcb->events.first;  //è listhead
-  int piubasso=evento->duration;
-  ProcessEvent* testa=evento;
-  ProcessEvent* aux= evento;
-  while(aux->list.next!=NULL && aux!=NULL){
-    aux=aux->list.next;
-  if(aux->duration<piubasso){
-    piubasso=aux->duration;
-    testa=aux;
+// devo sfruttare che listitem* lo posso convertire in processevent*
+  int len=0;
+  
+ 
     //detach
-   ListItem* minore= List_detach(testa, ListItem* item);
+ 
     //pushfront
     
     // aux= aux->list.next
     
-  }
-  }
 
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running

@@ -44,11 +44,11 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al t
 
   // depending on the type of the first event
   // we put the process either in ready or in waiting
-  ProcessEvent* e=(ProcessEvent*)new_pcb->events.first;
+  ProcessEvent* e=(ProcessEvent*)new_pcb->events.first; //converte da listitem*(preso da lista di processevent) a processEvent*, allora conserva tutte le proprietà di processevent
   switch(e->type){
   case CPU:
     List_pushBack(&os->ready, (ListItem*) new_pcb);     //se primo process event è cpu->metto pcb in ready
-    break;
+    break;                                //e quindi qui riconverte da processevent* a listitem* per rimetterlo in lista
   case IO:
     List_pushBack(&os->waiting, (ListItem*) new_pcb);  //se primo process event è io->metto pcb in waiting
     break;
@@ -65,11 +65,11 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   
   printf("************** TIME: %08d **************\n", os->timer);
 
-  //scan process waiting to be started
+  //scan process waiting to be started  
   //and create all processes starting now
-  ListItem* aux=os->processes.first;
+  ListItem* aux=os->processes.first; // é listitem*
   while (aux){
-    FakeProcess* proc=(FakeProcess*)aux;
+    FakeProcess* proc=(FakeProcess*)aux; //converte listitem* a fakeprocess*
     FakeProcess* new_process=0;
     if (proc->arrival_time==os->timer){  //scannerizza tutti i processi, se il timer di uno di questo è immminente, crea quel processo per farlo runnare
       new_process=proc;  // processo che sta per partire trovato

@@ -26,6 +26,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
 // devo sfruttare che listitem* lo posso convertire in processevent*
   int len=0;
   int minimo=9999999999;
+  FakePCB* pcbminimo=0;
   ListItem* aux=os->ready.first; //è primo pcb* in ready
   while(aux){
 
@@ -34,14 +35,17 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
     int cpuburst= eventoaux->duration;
     if(cpuburst<minimo){
-
+    minimo=cpuburst;
+    pcbminimo=pcbaux;  //salvato il minimo
    //detach
- 
+    ListItem* pcbminimoItem=List_detach(&os->ready, (ListItem*)pcbaux); // stacco il processo che sto creando dalla lista di tutti i processsi dentro fake os
+    List_pushFront(&os->ready, pcbminimoItem);//inserisco pcb all inizio
     //pushfront
-    
-    // aux= aux->list.next
-  
+    aux= pcbminimoItem;
     }
+
+    aux=aux->next;
+    len++;
  
 
   }

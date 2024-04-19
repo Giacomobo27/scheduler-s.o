@@ -20,19 +20,31 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
   os->running=pcb;
   
-  //devo riordinare &os->ready per renderlo SJF
+  //devo riordinare i pcb in &os->ready per renderlo SJF
 //... lo faccio piu banale possibile
 
 // devo sfruttare che listitem* lo posso convertire in processevent*
   int len=0;
-  
- 
-    //detach
+  int minimo=9999999999;
+  ListItem* aux=os->ready.first; //è primo pcb* in ready
+  while(aux){
+
+    //devo analizzare il tempo del primo evento del pcb in questio
+    FakePCB* pcbaux= (FakePCB*) aux;
+    ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
+    int cpuburst= eventoaux->duration;
+    if(cpuburst<minimo){
+
+   //detach
  
     //pushfront
     
     // aux= aux->list.next
-    
+  
+    }
+ 
+
+  }
 
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running

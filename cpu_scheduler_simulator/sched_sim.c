@@ -23,14 +23,14 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
   //devo riordinare i pcb in &os->ready per renderlo SJF
 //... lo faccio piu banale possibile
 
-// devo sfruttare che listitem* lo posso convertire in processevent*
+// devo sfruttare che listitem* lo posso convertire in processevent* o FakePCB*
   int len=0;
   int minimo=9999999999;
   FakePCB* pcbminimo=0;
-  ListItem* aux=os->ready.first; //è primo pcb* in ready
+  ListItem* aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
   while(aux){
 
-    //devo analizzare il tempo del primo evento del pcb in questio
+    //devo analizzare il tempo del primo evento del pcb in questione
     FakePCB* pcbaux= (FakePCB*) aux;
     ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
     int cpuburst= eventoaux->duration;
@@ -38,16 +38,15 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     minimo=cpuburst;
     pcbminimo=pcbaux;  //salvato il minimo
    //detach
-    ListItem* pcbminimoItem=List_detach(&os->ready, (ListItem*)pcbaux); // stacco il processo che sto creando dalla lista di tutti i processsi dentro fake os
+    ListItem* pcbminimoItem=List_detach(&os->ready, aux); // stacco il pcb
     List_pushFront(&os->ready, pcbminimoItem);//inserisco pcb all inizio
     //pushfront
-    aux= pcbminimoItem;
     }
 
     aux=aux->next;
     len++;
  
-
+   //sta roba trova solo il minimo totale
   }
 
   assert(pcb->events.first);

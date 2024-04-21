@@ -64,7 +64,11 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
 //ho trovato solo il minimo totale e messo all inizio, tanto mi serve solo quello
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
-  os->running=pcb;  //qua setto il running
+
+  //os->running=pcb; 
+  List_pushFront(&os->running,(ListItem*)pcb);//inserisco pcb all inizio della coda running
+
+
   int pidrunning=pcb->pid;
   printf("settato %d proc a running",pidrunning);
   assert(pcb->events.first);
@@ -114,9 +118,9 @@ int main(int argc, char** argv) {
 
 
   os.schedule_args=&srr_args;
-  os.schedule_fn=schedRR;  //setta scheduler RR fcfs
+  os.schedule_fn=schedRR;  //setta scheduler RRsjf
   
-  for (int i=1; i<argc; ++i){   //carico tutti i processi
+  for (int i=4; i<argc; ++i){   //carico tutti i processi da posizione 4 del input di tastiera
     FakeProcess new_process;
     int num_events=FakeProcess_load(&new_process, argv[i]);
     printf("loading [%s], pid: %d, events:%d",
@@ -128,7 +132,7 @@ int main(int argc, char** argv) {
     }
   }
   printf("num processes in queue %d\n", os.processes.size);
-  while(os.running
+  while(os.running.first
         || os.ready.first
         || os.waiting.first
         || os.processes.first){

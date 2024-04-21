@@ -5,7 +5,7 @@
 #include "fake_os.h"
 //giacomo jin 1937721
 void FakeOS_init(FakeOS* os) {
-  os->running=0;
+  List_init(&os->running);
   List_init(&os->ready);
   List_init(&os->waiting);
   List_init(&os->processes);
@@ -18,9 +18,14 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al t
   assert(p->arrival_time==os->timer && "time mismatch in creation");  //tempi sono corretti
   // we check that in the list of PCBs there is no
   // pcb having the same pid
-  assert( (!os->running || os->running->pid!=p->pid) && "pid taken");
+  ListItem* aux=os->running.first;
+  while(aux){
+    FakePCB* pcb=(FakePCB*)aux;
+    assert(pcb->pid!=p->pid && "pid taken");  //controllo che i pid siano univoci
+    aux=aux->next;
+  }
 
-  ListItem* aux=os->ready.first;
+  aux=os->ready.first;
   while(aux){
     FakePCB* pcb=(FakePCB*)aux;
     assert(pcb->pid!=p->pid && "pid taken");  //controllo che i pid siano univoci
@@ -128,7 +133,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // if event over, destroy event
   // and reschedule process
   // if last event, destroy running
-  FakePCB* running=os->running;  //se devo fare piu cpu, running diventa coda e qui devo scegliere il primo della coda
+  FakePCB* running=(FakePCB*)os->running.first;  // primo della coda running, ricordo ListItem*=FakePCB*
   printf("\trunning pid: %d\n", running?running->pid:-1);
   if (running) {
     ProcessEvent* e=(ProcessEvent*) running->events.first;
@@ -136,7 +141,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     e->duration--;  // decremento tempo del processo event in running 
 
     //...
-    
+
     printf("\t\tremaining time:%d\n",e->duration);
 
 
@@ -161,14 +166,15 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
           break;
         }
       }
-      os->running = 0;
+      //os->running=0;
+      List_popFront(&os->running);
     }
 
   }
 
 
   // call schedule, if defined
-  if (os->schedule_fn && ! os->running){ 
+  if (os->schedule_fn){ //ho tolto una condizione sul running
     (*os->schedule_fn)(os, os->schedule_args); //funzione scheduling, guarda tutte le strutture del fake os e decide il prossimo running
   }
 
@@ -176,9 +182,9 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // put the first in ready to run
 
   //forse lo devo levare sta parte (?)
-  if (! os->running && os->ready.first) {
-    os->running=(FakePCB*) List_popFront(&os->ready);
-  }
+  //if (! os->running && os->ready.first) {
+  //  os->running=(FakePCB*) List_popFront(&os->ready);
+  //}
 
   ++os->timer;
 

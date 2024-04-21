@@ -87,12 +87,14 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   aux=os->waiting.first;  // ogni volta che ciclo su un evento, gli decremento di 1 la sua durata del suo evento, è come se ho implementato un timer cosi
   while(aux) { //finche ce elemento in waiting list
     FakePCB* pcb=(FakePCB*)aux;
-    aux=aux->next;
+    aux=aux->next; //tanto il primo aux lo ha gia salvato in pcb 
     ProcessEvent* e=(ProcessEvent*) pcb->events.first;
     printf("\twaiting pid: %d\n", pcb->pid);
     assert(e->type==IO); //perche primo event di pcb in waiting deve sempre essere di tipo IO
-    e->duration--; //decremento durata IO
+    e->duration--; //decremento durata IO di ogni pcb in waiting 
     printf("\t\tremaining time:%d\n",e->duration);
+
+
     if (e->duration==0){  //evento IO terminato
       printf("\t\tend burst\n");
       List_popFront(&pcb->events);  //elimino evento perche terminato

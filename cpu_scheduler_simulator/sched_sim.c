@@ -44,76 +44,22 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
    //sta roba trova solo il minimo totale e lo mette all inizio della coda ready
   }
 
-
-  //faccio lista ausiliare di pcb in cui inserisco man mano tutti minimi che trovo
-  FakePCB* pcbog= (FakePCB*)os->ready.first; //giusto
-
-  FakePCB* pcbfantasma=(FakePCB*) malloc(sizeof(FakePCB)); //copia del primo pcb minimo
-  pcbfantasma->list=pcbog->list;
-  pcbfantasma->pid=pcbog->pid;
-  pcbfantasma->events=pcbog->events;
-  ListItem* pcbfantasmaitem=(ListItem*) pcbfantasma;
-  
-  ListHead ready2;  //lista fantasma , lho inizializzato bene?
-  List_init(&ready2);
-  List_pushFront(&ready2, pcbfantasmaitem);  //aggiunto primo minimo
-
-
-  for(int i=0;i<len-1;i++){
-     //lista di pcb ready che rendo sempre piu piccola
-    //  ListItem* primoprima=os->ready.first;
-     // List_detach(&os->ready, primoprima); 
-      List_popFront(&os->ready);// stacco il primo
-
-      aux=os->ready.first; //studio il secondo pcb, qua è listitem*
-     //trovo minimo della rimanente
-     int minimo=9999;
-
- while(aux){
-
-    FakePCB* pcbaux= (FakePCB*) aux;
-    ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
-    int cpuburst= eventoaux->duration;
-    if(cpuburst<minimo){
-    minimo=cpuburst;
-   // pcbminimo=pcbaux;  //salvato il minimo sus
-   //detach
-    List_detach(&os->ready, aux); // stacco il pcb
-    List_pushFront(&os->ready, aux);//inserisco pcb all inizio
-    //pushfront
-    }
-
-    aux=aux->next;
-
- }
- ListItem* primofine=os->ready.first;
- List_pushFront(&ready2, primofine); 
-
-  }
- //elimino vecchia coda
-  List_popFront(&os->ready);
-
-  //pongo lista coda ordinata a ready
-  os->ready=ready2;
+ 
   //provo a printare la coda trovata
-  //printf("coda ordinata trovata");
+  printf("coda ordinata trovata");
    aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
   while(aux){
-    
+
     //devo analizzare il tempo del primo evento del pcb in questione
     FakePCB* pcbaux= (FakePCB*) aux;
     ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
     int cpuburst= eventoaux->duration;
-   // printf("cpu %d",cpuburst);
+    printf("cpu %d ",cpuburst);
     aux=aux->next;
   }
 
 
-
-
-
- 
-//fatto ho coda ready ordinata in teoria 
+//ho trovato solo il minimo totale e messo all inizio, tanto mi serve solo quello
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
   os->running=pcb;  //qua setto il running
 

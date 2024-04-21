@@ -6,7 +6,9 @@
 FakeOS os;
 //giacomo jin 1937721
 typedef struct {
+  float a;
   int quantum;
+  int numcpu;
 } SchedRRArgs;  //quantum
 
 void schedRR(FakeOS* os, void* args_){  //scheduler RR
@@ -39,7 +41,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
     }
 
     aux=aux->next;
-    len++;  //ottengo pure len totale della coda da sto ciclo iniziale
+    len++;  //ottengo pure len totale della coda ready da sto ciclo iniziale
  
    //sta roba trova solo il minimo totale e lo mette all inizio della coda ready
   }
@@ -88,8 +90,6 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
   printf("coda running after:");
    aux=pcb->events.first; //è primo evento* in events del pcb running sottoforma di listitem
   while(aux){
-
-    //devo analizzare il tempo del primo evento del pcb in questione
     ProcessEvent* pe= (ProcessEvent*) aux;
     int tipo= pe->type;
     int burst= pe->duration;
@@ -104,7 +104,15 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 int main(int argc, char** argv) {
   FakeOS_init(&os);
   SchedRRArgs srr_args;  //scheduler
+  srr_args.numcpu=1;
+  srr_args.a=0.7;
   srr_args.quantum=5;  //da settare
+  srr_args.a=atoi(argv[1]); //  prendi da input i dati 
+  srr_args.quantum=atoi(argv[2]);
+  srr_args.numcpu=atoi(argv[3]);
+ 
+
+
   os.schedule_args=&srr_args;
   os.schedule_fn=schedRR;  //setta scheduler RR fcfs
   

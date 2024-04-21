@@ -3,7 +3,7 @@
 #pragma once
 //giacomo jin 1937721
 
-typedef struct {
+typedef struct {  //aggiungo contatore?
   ListItem list;   // fake pcb è un elemento di una lista
   int pid;   //pid di un processo
   ListHead events;  // lista di eventi di questo processo, puoi vederlo come le istruzioni del processo

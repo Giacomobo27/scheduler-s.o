@@ -128,12 +128,15 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // if event over, destroy event
   // and reschedule process
   // if last event, destroy running
-  FakePCB* running=os->running;
+  FakePCB* running=os->running;  //se devo fare piu cpu, running diventa coda e qui devo scegliere il primo della coda
   printf("\trunning pid: %d\n", running?running->pid:-1);
   if (running) {
     ProcessEvent* e=(ProcessEvent*) running->events.first;
     assert(e->type==CPU);
     e->duration--;  // decremento tempo del processo event in running 
+
+    //...
+    
     printf("\t\tremaining time:%d\n",e->duration);
 
 
@@ -161,8 +164,6 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
       os->running = 0;
     }
 
- // qua non rimpiazzo mai prememptivamente i processi 
-// adesso è tipo fcfs
   }
 
 
@@ -173,6 +174,8 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
 
   // if running not defined and ready queue not empty
   // put the first in ready to run
+
+  //forse lo devo levare sta parte (?)
   if (! os->running && os->ready.first) {
     os->running=(FakePCB*) List_popFront(&os->ready);
   }

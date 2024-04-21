@@ -46,15 +46,16 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
  
   //provo a printare la coda trovata
-  printf("coda ordinata trovata");
+  printf("coda ordinata trovata:");
    aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
   while(aux){
 
     //devo analizzare il tempo del primo evento del pcb in questione
     FakePCB* pcbaux= (FakePCB*) aux;
+    int pid= pcbaux->pid;
     ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
     int cpuburst= eventoaux->duration;
-    printf("cpu %d ",cpuburst);
+    printf("cpu%d pid%d ",cpuburst,pid);
     aux=aux->next;
   }
 
@@ -62,7 +63,8 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 //ho trovato solo il minimo totale e messo all inizio, tanto mi serve solo quello
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
   os->running=pcb;  //qua setto il running
-
+  int pidrunning=pcb->pid;
+  printf("settato %d proc a running",pidrunning);
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running
   assert(e->type==CPU);
@@ -80,6 +82,21 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
     List_pushFront(&pcb->events, (ListItem*)qe); 
     // evento attuale diventa 2 eventi, uno di durata quantum all inizio, e uno di durata rimanente appena dopo(in secondo posto)
   }
+
+
+  //provo a printare la coda di eventi di pcb running per premptivita
+  printf("coda running after:");
+   aux=pcb->events.first; //è primo evento* in events del pcb running sottoforma di listitem
+  while(aux){
+
+    //devo analizzare il tempo del primo evento del pcb in questione
+    ProcessEvent* pe= (ProcessEvent*) aux;
+    int tipo= pe->type;
+    int burst= pe->duration;
+    printf("type%d durata%d ",tipo,burst);
+    aux=aux->next;
+  }
+
 };
 
 

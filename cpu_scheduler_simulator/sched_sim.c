@@ -12,7 +12,7 @@ typedef struct {
 void schedRR(FakeOS* os, void* args_){  //scheduler RR
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
-  // look for the first process in ready
+  // look for the first process in ready ???
   // if none, return
   if (! os->ready.first)
     return;
@@ -22,7 +22,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
 // devo sfruttare che listitem* lo posso convertire in processevent* o FakePCB*
   int len=0; 
-  int minimo=9999999999;
+  int minimo=9999;
   ListItem* aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
   while(aux){
 
@@ -67,7 +67,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
       aux=os->ready.first; //studio il secondo pcb, qua è listitem*
      //trovo minimo della rimanente
-     int minimo=9999999999;
+     int minimo=9999;
 
  while(aux){
 
@@ -95,10 +95,27 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
   //pongo lista coda ordinata a ready
   os->ready=ready2;
+  //provo a printare la coda trovata
+  //printf("coda ordinata trovata");
+   aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
+  while(aux){
+    
+    //devo analizzare il tempo del primo evento del pcb in questione
+    FakePCB* pcbaux= (FakePCB*) aux;
+    ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
+    int cpuburst= eventoaux->duration;
+   // printf("cpu %d",cpuburst);
+    aux=aux->next;
+  }
+
+
+
+
+
  
 //fatto ho coda ready ordinata in teoria 
   FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
-  os->running=pcb;
+  os->running=pcb;  //qua setto il running
 
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running

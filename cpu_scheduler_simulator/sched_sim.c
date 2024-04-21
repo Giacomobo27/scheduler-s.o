@@ -9,24 +9,20 @@ typedef struct {
   int quantum;
 } SchedRRArgs;  //quantum
 
-void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
+void schedRR(FakeOS* os, void* args_){  //scheduler RR
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
   // look for the first process in ready
   // if none, return
   if (! os->ready.first)
     return;
-
-  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
-  os->running=pcb;
   
   //devo riordinare i pcb in &os->ready per renderlo SJF
 //... lo faccio piu banale possibile
 
 // devo sfruttare che listitem* lo posso convertire in processevent* o FakePCB*
-  int len=0;
+  int len=0; 
   int minimo=9999999999;
-  FakePCB* pcbminimo=0;
   ListItem* aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
   while(aux){
 
@@ -36,7 +32,6 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     int cpuburst= eventoaux->duration;
     if(cpuburst<minimo){
     minimo=cpuburst;
-    pcbminimo=pcbaux;  //salvato il minimo
    //detach
     List_detach(&os->ready, aux); // stacco il pcb
     List_pushFront(&os->ready, aux);//inserisco pcb all inizio
@@ -44,10 +39,12 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     }
 
     aux=aux->next;
-    len++;
+    len++;  //ottengo pure len totale della coda da sto ciclo iniziale
  
    //sta roba trova solo il minimo totale e lo mette all inizio della coda ready
   }
+
+
   //faccio lista ausiliare di pcb in cui inserisco man mano tutti minimi che trovo
   FakePCB* pcbog= (FakePCB*)os->ready.first; //giusto
 
@@ -57,18 +54,21 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
   pcbfantasma->events=pcbog->events;
   ListItem* pcbfantasmaitem=(ListItem*) pcbfantasma;
   
-  ListHead ready2;  //lista fantasma 
+  ListHead ready2;  //lista fantasma , lho inizializzato bene?
   List_init(&ready2);
   List_pushFront(&ready2, pcbfantasmaitem);  //aggiunto primo minimo
-  for(int i=1;i<len;i++){
+
+
+  for(int i=0;i<len-1;i++){
      //lista di pcb ready che rendo sempre piu piccola
-      ListItem* primoprima=os->ready.first;
-      List_detach(&os->ready, primoprima); // stacco il primo
+    //  ListItem* primoprima=os->ready.first;
+     // List_detach(&os->ready, primoprima); 
+      List_popFront(&os->ready);// stacco il primo
 
-      aux=os->ready.first; //studio il secondo pcb
-
+      aux=os->ready.first; //studio il secondo pcb, qua è listitem*
      //trovo minimo della rimanente
      int minimo=9999999999;
+
  while(aux){
 
     FakePCB* pcbaux= (FakePCB*) aux;
@@ -76,24 +76,29 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR fcfs
     int cpuburst= eventoaux->duration;
     if(cpuburst<minimo){
     minimo=cpuburst;
-    pcbminimo=pcbaux;  //salvato il minimo sus
+   // pcbminimo=pcbaux;  //salvato il minimo sus
    //detach
     List_detach(&os->ready, aux); // stacco il pcb
     List_pushFront(&os->ready, aux);//inserisco pcb all inizio
     //pushfront
     }
 
+    aux=aux->next;
+
  }
  ListItem* primofine=os->ready.first;
- List_pushFront(&ready2, pcbfantasmaitem); 
+ List_pushFront(&ready2, primofine); 
 
   }
+ //elimino vecchia coda
+  List_popFront(&os->ready);
 
-
-
-
-
-
+  //pongo lista coda ordinata a ready
+  os->ready=ready2;
+ 
+//fatto ho coda ready ordinata in teoria 
+  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
+  os->running=pcb;
 
   assert(pcb->events.first);
   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running

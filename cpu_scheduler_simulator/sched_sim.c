@@ -80,7 +80,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
     qe->duration=args->quantum;
     e->duration-=args->quantum;  
     List_pushFront(&pcb->events, (ListItem*)qe); 
-    // evento attuale diventa 2 eventi, uno di durata quantum all inizio, e uno di durata rimanente appena dopo(in secondo posto)
+    // evento attuale diventa 2 eventi in  pcb running, uno di durata quantum all inizio, e uno di durata rimanente appena dopo(in secondo posto)
   }
 
 

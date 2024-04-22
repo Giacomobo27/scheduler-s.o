@@ -81,7 +81,7 @@ while(runningdim(os)< args->numcpu && os->ready.first){ //finchè ho cpu liberi 
   //questo lo devo fare finche ho cpu liberi
 
   int pidrunning=pcb->pid;
-  printf("settato %d pid a running",pidrunning); //print checking
+  printf("\tsettato %d pid a running\n",pidrunning); //print checking
   assert(pcb->events.first);
 
   // look at the first event                           
@@ -123,10 +123,11 @@ int main(int argc, char** argv) {
   srr_args.numcpu=1;
   srr_args.a=0.7;
   srr_args.quantum=5;  //da settare
-  srr_args.a=atoi(argv[1]); //  prendi da input i dati 
+
+  srr_args.a=atof(argv[1]); //  prendi da input i dati 
   srr_args.quantum=atoi(argv[2]);
   srr_args.numcpu=atoi(argv[3]);
-  printf("\tdati ricevuti a:%f, quantum:%d, numcpu:%d\n");
+  printf("\tdati ricevuti a:%f, quantum:%d, numcpu:%d\n",srr_args.a,srr_args.quantum,srr_args.numcpu);
 
 
   os.schedule_args=&srr_args;

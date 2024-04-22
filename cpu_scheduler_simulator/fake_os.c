@@ -186,7 +186,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   //  os->running=(FakePCB*) List_popFront(&os->ready);
   //}
 
-  ++os->timer;
+  ++os->timer; // va avanti di un secondo il timer globale
 
 }
 

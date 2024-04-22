@@ -13,8 +13,7 @@ struct FakeOS; //classe s.o finto
 typedef void (*ScheduleFn)(struct FakeOS* os, void* args); //puntatore a funzione scheduling di cui farò dopo overriding
 
 typedef struct FakeOS{ //ricordo ListItem*=FakePCB*
-  ListHead running; // ho tanti pcb, uno a processo, questo punta al pcb del processo attuale che sta runnando
-  //coda pcb di running
+  ListHead running;  //coda pcb di running
   ListHead ready;   //code pcb di cui primo evento è cpu
   ListHead waiting; // code pcb di cui primo evento è io
   int timer;

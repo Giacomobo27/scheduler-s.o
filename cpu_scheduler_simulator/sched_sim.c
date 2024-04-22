@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
   srr_args.a=atoi(argv[1]); //  prendi da input i dati 
   srr_args.quantum=atoi(argv[2]);
   srr_args.numcpu=atoi(argv[3]);
- 
+  printf("\tdati ricevuti a:%f, quantum:%d, numcpu:%d\n");
 
 
   os.schedule_args=&srr_args;

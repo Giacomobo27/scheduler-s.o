@@ -144,7 +144,8 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
    
    // decremento tempo dei processi event cpu in running , quindi per ogni pcb in coda running
   while(aux){
-    running=(FakePCB*)aux;           
+    running=(FakePCB*)aux;    
+    printf("\trunning analizzato pid %d\n",running->pid);       
     ProcessEvent* e=(ProcessEvent*)running->events.first;
     assert(e->type==CPU);
     e->duration--; 

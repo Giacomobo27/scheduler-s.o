@@ -145,7 +145,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
    // decremento tempo dei processi event cpu in running , quindi per ogni pcb in coda running
   while(aux){
     running=(FakePCB*)aux;    
-    printf("\trunning analizzato pid %d\n",running->pid);       
+  //  printf("\trunning analizzato pid %d\n",running->pid);       
     ProcessEvent* e=(ProcessEvent*)running->events.first;
     assert(e->type==CPU);
     e->duration--; 
@@ -158,11 +158,12 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
       printf("\t\tend burst\n");
       List_popFront(&running->events);  //elimina primo evento del pcb running attuale perche finito
       free(e);
+      
 
       if (! running->events.first) {  //se finito l evento non ci sono altri eventi dopo, allora sono finiti tutti gli eventi 
         printf("\t\tend process\n");
         //List_popFront(&os->running); // elimina pcb da coda running perche ha finito gli eventi
-
+        List_detach(&os->running,aux);
         free(running);  // va in comflitto con popfront?
 
       } else {
@@ -170,15 +171,17 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
         switch (e->type){
         case CPU:
           printf("\t\tmove to ready\n");
-          List_pushBack(&os->ready, (ListItem*) running);
+          List_detach(&os->running,aux); //toglie da coda running
+          List_pushBack(&os->ready, (ListItem*) running);  //mette in coda rady
           break;
         case IO:
           printf("\t\tmove to waiting\n");
-          List_pushBack(&os->waiting, (ListItem*) running);
+          List_detach(&os->running,aux);
+          List_pushBack(&os->waiting, (ListItem*) running); //mette in coda waiting
           break;
         }
       }
-      List_popFront(&os->running); //perche cmq se è finito cpu burst, devo leva il pcb running al cpu per lascia spazio ad un altro pcb in coda in ready
+     // List_detach(&os->running,aux); //perche cmq se è finito cpu burst, devo leva il pcb running al cpu per lascia spazio ad un altro pcb in coda in ready
   }
 
   aux=aux->next; //guardo pcb running successivo 

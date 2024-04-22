@@ -67,7 +67,10 @@ void FakeOS_createProcess(FakeOS* os, FakeProcess* p) { //attiva processo p al t
 
 
 void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
-  
+  //scannerizza di fakeos prima lista processi,
+  //poi scannerizza lista waiting,
+  //poi scannerizza lista running
+  //e infine chiama scheduling che scannerizza lista ready
   printf("************** TIME: %08d **************\n", os->timer);
 
   //scan process waiting to be started  
@@ -83,7 +86,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     if (new_process) {
       printf("\tcreate pid:%d\n", new_process->pid);
       new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista di tutti i processi dentro fake os
-      FakeOS_createProcess(os, new_process); //creo pcb ( è la funzione sopra)
+      FakeOS_createProcess(os, new_process); //crea pcb ( è la funzione sopra) e alloca in ready o waiting
       free(new_process); //libero spazio 
     }
   }
@@ -158,7 +161,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
       if (! running->events.first) {  //se finito l evento non ci sono altri eventi dopo, allora sono finiti tutti gli eventi 
         printf("\t\tend process\n");
         //List_popFront(&os->running); // elimina pcb da coda running perche ha finito gli eventi
-        
+
         free(running);  // va in comflitto con popfront?
 
       } else {
@@ -184,7 +187,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
 
   // call schedule, if defined
   if (os->schedule_fn){ //ho tolto una condizione sul running
-    (*os->schedule_fn)(os, os->schedule_args); //funzione scheduling, guarda tutte le strutture del fake os e decide il prossimo running
+    (*os->schedule_fn)(os, os->schedule_args); //funzione scheduling, guarda tutte le strutture del fake os e decide coda pcb running
   }
 
   // if running not defined and ready queue not empty

@@ -23,7 +23,9 @@ int runningdim(FakeOS* os){
 }
 
 void schedRR(FakeOS* os, void* args_){  //scheduler RR
-  SchedRRArgs* args=(SchedRRArgs*)args_;
+  SchedRRArgs* args=(SchedRRArgs*)args_;  
+
+  //forse mancano dei assert in generale 
 
   // look for the first process in ready 
   // if none, return
@@ -55,44 +57,40 @@ while(runningdim(os)< args->numcpu && os->ready.first){ //finchè ho cpu liberi 
     }
 
     aux=aux->next;
-    len++;  //ottengo pure len totale della coda ready da sto ciclo iniziale
+    len++;  //ottengo pure len totale della coda ready da sto ciclo 
  
-   //sta roba trova solo il minimo totale e lo mette all inizio della coda ready
+   //sta roba trova il minimo totale e lo mette all inizio della coda ready
   }
 
  
-  //provo a printare la coda trovata
-  printf("coda ordinata trovata:");
-   aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
-  while(aux){
-
-    //devo analizzare il tempo del primo evento del pcb in questione
-    FakePCB* pcbaux= (FakePCB*) aux;
-    int pid= pcbaux->pid;
-    ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
-    int cpuburst= eventoaux->duration;
-    printf("cpu%d pid%d ",cpuburst,pid);
-    aux=aux->next;
-  }
+ // printf("coda ordinata trovata:");
+  // aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
+ // while(aux){
+  //  FakePCB* pcbaux= (FakePCB*) aux;
+  //  int pid= pcbaux->pid;
+  //  ProcessEvent* eventoaux= (ProcessEvent*)pcbaux->events.first;
+   // int cpuburst= eventoaux->duration;
+ //   printf("cpu%d pid%d ",cpuburst,pid);
+ //   aux=aux->next;
+ // }
 
 
-//ho trovato solo il minimo totale e messo all inizio, tanto mi serve solo quello
-  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda
-
-  //os->running=pcb; 
+//ho trovato solo il minimo totale dei pcb ready e messo all inizio, tanto mi serve solo quello
+  FakePCB* pcb=(FakePCB*) List_popFront(&os->ready); // prende il primo pcb della coda ready(pop)
   List_pushFront(&os->running,(ListItem*)pcb);//inserisco pcb all inizio della coda running
   //questo lo devo fare finche ho cpu liberi
 
   int pidrunning=pcb->pid;
-  printf("settato %d proc a running",pidrunning);
+  printf("settato %d pid a running",pidrunning); //print checking
   assert(pcb->events.first);
-  ProcessEvent* e = (ProcessEvent*)pcb->events.first; //studio il primo evento della pcb running
-  assert(e->type==CPU);
 
   // look at the first event                           
   // if duration>quantum
   // push front in the list of event a CPU event of duration quantum
   // alter the duration of the old event subtracting quantum
+   ProcessEvent* e = (ProcessEvent*)pcb->events.first; //primo evento della pcb running
+  assert(e->type==CPU);
+  // qua manca da definire il quantum predittivo
   if (e->duration>args->quantum) {     
     ProcessEvent* qe=(ProcessEvent*)malloc(sizeof(ProcessEvent));
     qe->list.prev=qe->list.next=0;
@@ -105,15 +103,15 @@ while(runningdim(os)< args->numcpu && os->ready.first){ //finchè ho cpu liberi 
 
 
   //provo a printare la coda di eventi di pcb running per premptivita
-  printf("coda running after:");
-   aux=pcb->events.first; //è primo evento* in events del pcb running sottoforma di listitem
-  while(aux){
-    ProcessEvent* pe= (ProcessEvent*) aux;
-    int tipo= pe->type;
-    int burst= pe->duration;
-    printf("type%d durata%d ",tipo,burst);
-    aux=aux->next;
-  }
+ // printf("coda running after:");
+ //  aux=pcb->events.first; //è primo evento* in events del pcb running sottoforma di listitem
+ // while(aux){
+ //   ProcessEvent* pe= (ProcessEvent*) aux;
+ //   int tipo= pe->type;
+  //  int burst= pe->duration;
+ //   printf("type%d durata%d ",tipo,burst);
+ //   aux=aux->next;
+ // }
 }
 };
 

@@ -133,7 +133,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // if event over, destroy event and reschedule process
   // if last event, destroy running
   ListItem* aux= os->running.first;
-  FakePCB* running=(FakePCB*)os->running.first;  // primo della coda running, ricordo ListItem*=FakePCB*
+  FakePCB* running=(FakePCB*)os->running.first;  // running= primo della coda running, ricordo ListItem*=FakePCB* (un po ambiguo)
   if(running==0) printf("\trunning pid:-1\n");
 
 
@@ -157,7 +157,10 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
 
       if (! running->events.first) {  //se finito l evento non ci sono altri eventi dopo, allora sono finiti tutti gli eventi 
         printf("\t\tend process\n");
-        free(running); // elimina processo perche ha finito gli eventi
+        //List_popFront(&os->running); // elimina pcb da coda running perche ha finito gli eventi
+        
+        free(running);  // va in comflitto con popfront?
+
       } else {
         e=(ProcessEvent*) running->events.first;
         switch (e->type){
@@ -171,8 +174,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
           break;
         }
       }
-      //os->running=0;
-      List_popFront(&os->running); //sus?
+      List_popFront(&os->running); //perche cmq se è finito cpu burst, devo leva il pcb running al cpu per lascia spazio ad un altro pcb in coda in ready
   }
 
   aux=aux->next; //guardo pcb running successivo 

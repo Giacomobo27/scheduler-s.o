@@ -5,7 +5,7 @@
 #include "fake_os.h"
 //giacomo jin 1937721
 void FakeOS_init(FakeOS* os) {
-  List_init(&os->running);
+  List_init(&os->running); //dim max è data da numcpu da schedrrargs
   List_init(&os->ready);
   List_init(&os->waiting);
   List_init(&os->processes);
@@ -76,13 +76,13 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   while (aux){
     FakeProcess* proc=(FakeProcess*)aux; //converte listitem* a fakeprocess*
     FakeProcess* new_process=0;
-    if (proc->arrival_time==os->timer){  //scannerizza tutti i processi, se il timer di uno di questo è immminente, crea quel processo per farlo runnare
+    if (proc->arrival_time==os->timer){  //scannerizza tutti i processi, se il timer di uno di questo è immminente, crea quel processo 
       new_process=proc;  // processo che sta per partire trovato
     }
     aux=aux->next;
     if (new_process) {
       printf("\tcreate pid:%d\n", new_process->pid);
-      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista di tutti i processsi dentro fake os
+      new_process=(FakeProcess*)List_detach(&os->processes, (ListItem*)new_process); // stacco il processo che sto creando dalla lista di tutti i processi dentro fake os
       FakeOS_createProcess(os, new_process); //creo pcb ( è la funzione sopra)
       free(new_process); //libero spazio 
     }
@@ -96,7 +96,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
     ProcessEvent* e=(ProcessEvent*) pcb->events.first;
     printf("\twaiting pid: %d\n", pcb->pid);
     assert(e->type==IO); //perche primo event di pcb in waiting deve sempre essere di tipo IO
-    e->duration--; //decremento durata IO di ogni pcb in waiting 
+    e->duration--; //decremento durata IO in ogni pcb in waiting 
     printf("\t\tremaining time:%d\n",e->duration);
 
 
@@ -130,27 +130,32 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   
 //parte scheduling ossia gestione running
   // decrement the duration of running
-  // if event over, destroy event
-  // and reschedule process
+  // if event over, destroy event and reschedule process
   // if last event, destroy running
+  ListItem* aux= os->running.first;
   FakePCB* running=(FakePCB*)os->running.first;  // primo della coda running, ricordo ListItem*=FakePCB*
-  printf("\trunning pid: %d\n", running?running->pid:-1);
-  if (running) {
-    ProcessEvent* e=(ProcessEvent*) running->events.first;
+  if(running==0) printf("\trunning pid:-1\n");
+
+
+  if (running) {  //ce almeno un pcb in running, guardo anche gli altri della coda running
+   
+   // decremento tempo dei processi event cpu in running , quindi per ogni pcb in coda running
+  while(aux){
+    running=(FakePCB*)aux;           
+    ProcessEvent* e=(ProcessEvent*)running->events.first;
     assert(e->type==CPU);
-    e->duration--;  // decremento tempo del processo event in running 
+    e->duration--; 
 
-    //...
 
+    printf("\trunning pid: %d\n", running?running->pid:-1); // tanto pid=-1 se aux2 è nullo, succede solo a fine lista
     printf("\t\tremaining time:%d\n",e->duration);
 
-
-
-    if (e->duration==0){
+  if (e->duration==0){
       printf("\t\tend burst\n");
-      List_popFront(&running->events);  //elimina evento perche finito
+      List_popFront(&running->events);  //elimina primo evento del pcb running attuale perche finito
       free(e);
-      if (! running->events.first) {
+
+      if (! running->events.first) {  //se finito l evento non ci sono altri eventi dopo, allora sono finiti tutti gli eventi 
         printf("\t\tend process\n");
         free(running); // elimina processo perche ha finito gli eventi
       } else {
@@ -167,11 +172,13 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
         }
       }
       //os->running=0;
-      List_popFront(&os->running);
-    }
-
+      List_popFront(&os->running); //sus?
   }
 
+  aux=aux->next; //guardo pcb running successivo 
+}  //chiusura ciclo while
+
+}
 
   // call schedule, if defined
   if (os->schedule_fn){ //ho tolto una condizione sul running

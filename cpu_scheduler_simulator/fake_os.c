@@ -135,7 +135,7 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // decrement the duration of running
   // if event over, destroy event and reschedule process
   // if last event, destroy running
-  ListItem* aux= os->running.first;
+  aux= os->running.first;
   FakePCB* running=(FakePCB*)os->running.first;  // running= primo della coda running, ricordo ListItem*=FakePCB* (un po ambiguo)
   if(running==0) printf("\trunning pid:-1\n");
 

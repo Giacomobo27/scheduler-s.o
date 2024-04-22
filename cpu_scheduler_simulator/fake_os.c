@@ -135,16 +135,18 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
   // decrement the duration of running
   // if event over, destroy event and reschedule process
   // if last event, destroy running
+
+
   aux= os->running.first;
-  FakePCB* running=(FakePCB*)os->running.first;  // running= primo della coda running, ricordo ListItem*=FakePCB* (un po ambiguo)
-  if(running==0) printf("\trunning pid:-1\n");
+ // FakePCB* running=(FakePCB*)os->running.first;  // running= primo della coda running, ricordo ListItem*=FakePCB* (un po ambiguo)
+  if(!aux) printf("\trunning pid:-1\n");
 
 
-  if (running) {  //ce almeno un pcb in running, guardo anche gli altri della coda running
+   //ce almeno un pcb in running, guardo anche gli altri della coda running
    
    // decremento tempo dei processi event cpu in running , quindi per ogni pcb in coda running
   while(aux){
-    running=(FakePCB*)aux;    
+   FakePCB* running=(FakePCB*)aux;    
   //  printf("\trunning analizzato pid %d\n",running->pid);       
     ProcessEvent* e=(ProcessEvent*)running->events.first;
     assert(e->type==CPU);
@@ -158,36 +160,36 @@ void FakeOS_simStep(FakeOS* os){ // fa giro di giostra   e implemento il timer
       printf("\t\tend burst\n");
       List_popFront(&running->events);  //elimina primo evento del pcb running attuale perche finito
       free(e);
+       List_detach(&os->running,aux); //proviamo
       
 
       if (! running->events.first) {  //se finito l evento non ci sono altri eventi dopo, allora sono finiti tutti gli eventi 
-        printf("\t\tend process\n");
-        //List_popFront(&os->running); // elimina pcb da coda running perche ha finito gli eventi
-        List_detach(&os->running,aux);
-        free(running);  // va in comflitto con popfront?
+        printf("\t\tend process ( non faccio free)\n");
+        // elimina pcb da coda running perche ha finito gli eventi
+        // FakePCB* trash=(FakePCB*)auxtrash;
+        // free(running);  // va in comflitto con reference prima del ciclo
 
       } else {
         e=(ProcessEvent*) running->events.first;
         switch (e->type){
         case CPU:
           printf("\t\tmove to ready\n");
-          List_detach(&os->running,aux); //toglie da coda running
+         // List_detach(&os->running,aux); //toglie da coda running
           List_pushBack(&os->ready, (ListItem*) running);  //mette in coda rady
           break;
         case IO:
           printf("\t\tmove to waiting\n");
-          List_detach(&os->running,aux);
+         // List_detach(&os->running,aux);
           List_pushBack(&os->waiting, (ListItem*) running); //mette in coda waiting
           break;
         }
       }
-     // List_detach(&os->running,aux); //perche cmq se è finito cpu burst, devo leva il pcb running al cpu per lascia spazio ad un altro pcb in coda in ready
+      //perche cmq se è finito cpu burst, devo leva il pcb running al cpu per lascia spazio ad un altro pcb in coda in ready
   }
 
   aux=aux->next; //guardo pcb running successivo 
 }  //chiusura ciclo while
 
-}
 
   // call schedule, if defined
   if (os->schedule_fn){ //ho tolto una condizione sul running

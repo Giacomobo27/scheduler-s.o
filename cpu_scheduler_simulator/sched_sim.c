@@ -11,10 +11,21 @@ typedef struct {
   int numcpu;
 } SchedRRArgs;  //quantum
 
+
+int runningdim(FakeOS* os){
+   int res=0;
+   ListItem* aux=os->running.first;
+   while(aux){
+    aux=aux->next;
+    res++;
+   }
+   return res;
+}
+
 void schedRR(FakeOS* os, void* args_){  //scheduler RR
   SchedRRArgs* args=(SchedRRArgs*)args_;
 
-  // look for the first process in ready ???
+  // look for the first process in ready 
   // if none, return
   if (! os->ready.first)
     return;
@@ -23,6 +34,9 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 //... lo faccio piu banale possibile
 
 // devo sfruttare che listitem* lo posso convertire in processevent* o FakePCB*
+
+while(runningdim(os)< args->numcpu && os->ready.first){ //finchè ho cpu liberi e ho pcb in ready, alloca i pcb runnings
+
   int len=0; 
   int minimo=9999;
   ListItem* aux=os->ready.first; //è primo pcb* in ready sottoforma di listitem
@@ -67,7 +81,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
 
   //os->running=pcb; 
   List_pushFront(&os->running,(ListItem*)pcb);//inserisco pcb all inizio della coda running
-
+  //questo lo devo fare finche ho cpu liberi
 
   int pidrunning=pcb->pid;
   printf("settato %d proc a running",pidrunning);
@@ -100,7 +114,7 @@ void schedRR(FakeOS* os, void* args_){  //scheduler RR
     printf("type%d durata%d ",tipo,burst);
     aux=aux->next;
   }
-
+}
 };
 
 
